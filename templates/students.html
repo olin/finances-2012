@@ -1,0 +1,18 @@
+$def with (students)
+$var title: Students
+$var type: students
+
+<h1>Students</h1>
+
+$if is_admin():
+	<form method="post" style="display: inline">
+	<p class="notice">The student list can be automatically updated from the Exchange server if it is out of date. This process will take a few moments.<br>
+	MILKYWAY\<input type="text" name="username">
+	Password: <input type="password" name="password">
+	<input type="submit" value="Update Students List"></p>
+	</form>
+
+<dl id="students-list">
+$for student in students:
+	<dt>$student.name</dt><dd><a href="mailto:$student.id@students.olin.edu">$student.id@students.olin.edu</a></dd>
+</dl>

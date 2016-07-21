@@ -1,0 +1,43 @@
+$def with (page)
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<title>$page.title | SAO Finance Manager</title>
+<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'> 
+<link href="$root/static/screen.css" type="text/css" rel="stylesheet" />
+$:page.get('head')
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="$root/static/code.js"></script>
+</head>
+
+<body class="$page.type">
+
+<ul id="links">
+<li $:{'class="current"' if page.type == 'main' else ''}><a href="/finance/">Student Finance</a></li>
+<li $:{'class="current"' if page.type == 'groups' else ''}><a href="/finance/groups/">Clubs and Organizations</a></li>
+<li $:{'class="current"' if page.type == 'students' else ''}><a href="/finance/students/">Students</a></li>
+$if is_admin():
+	<li $:{'class="current"' if page.type == 'reimbursements' else ''}><a href="/finance/reimbursements/">Reimbursements</a></li>
+	<li $:{'class="current"' if page.type == 'transactions' else ''}><a href="/finance/transactions/">P-Card Transactions</a></li>
+</ul>
+
+$ user = get_olinauth_user()
+$if user:
+	<form id="account" action="/auth/logout?redirect=http://apps/finance/" method="post">
+	<p>Logged in as <strong style="${'background: #ff0' if is_admin() else ''}">$user</strong>. <input type="submit" value="Logout?"></p>
+	</form>
+$else:
+	<form id="account">
+	<p><a href="/auth/?redirect=http://apps/finance/">Login?</a></p>
+	</form>
+	
+<div id="content">
+$:page
+</div>
+
+<p id="footer">Olin Student Finance App written in 2011 by <a href="mailto:timothy.ryan@students.olin.edu">Tim Ryan '13</a>.</p>
+</body>
+</html>

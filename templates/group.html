@@ -1,0 +1,129 @@
+$def with (club, budget_expenses, revenue_expenses, students, edit_id)
+$var title: Group $club.name
+$var type: group
+
+$ expense_types = {"allotment": "Allotment", "p-card": "P-Card", "reimbursement": "Reimbursement", "cash": "Cash Forward", "revenue": "Revenue"}
+
+$def expenses_cols():
+    <col style="width: 100px">
+	<col style="width: 200px">
+	<col style="width: 160px">
+	<col style="width: 90px">
+	<col>
+	<col style="width: 60px">
+
+$def input_row(**kargs):
+	<tr class="input-row">
+	<td>
+	$if 'id' in kargs:
+		<input type="hidden" name="id" value="$kargs.get('id')">
+	<input type="text" name="date" value="$time.strftime("%Y/%m/%d", time.localtime(kargs.get('date', time.time())))">
+	</td>
+	<td><input type="text" name="description" value="$kargs.get('description', '')"></td>
+	$ type = kargs.get('type', '')
+	<td><select name="type">
+	<option value="allotment" ${"selected" if type == "allotment" else ""}>Allotment</option>
+	<option value="p-card" ${"selected" if type == "p-card" else ""}>P-Card</option>
+	<option value="reimbursement" ${"selected" if type == "reimbursement" else ""}>Reimbursement</option>
+	<option value="cash" ${"selected" if type == "cash" else ""}>Cash Forward</option>
+	<option value="revenue" ${"selected" if type == "revenue" else ""}>Revenue</option>
+	</select>
+	<select name="student">
+	<option value="">&mdash;</option>
+	$ student_id = kargs.get('student', None)
+	$for student in students:
+		<option value="$student.id" ${"selected" if student.id == student_id else ""}>$student.name</option>
+	</select></td>
+	<td>$$<input type="text" name="amount" value="$currency_float(kargs.get('amount', 500))" style="width: 80%; display: inline"></td>
+	<td><textarea name="notes" rows="1" cols="10" onkeyup="FitToContent(this, 500)">$kargs.get('notes', '')</textarea></td>
+	<td><input type="checkbox" name="completed" ${"checked" if kargs.get('completed', False) else ""}></td>
+	</tr>
+
+$def input_submit_row(**kargs):
+	<tr class="input-submit-row">
+	<td colspan="6">
+	<input type="submit" value="$kargs.get('text', 'Submit Expense')">
+	<input type="reset" value="Cancel">
+	</td>
+	</tr>
+
+$code:
+	chart_url = "http://chart.apis.google.com/chart?chxl=1:|September|October|November|December|January|February|March|April|May|June|July|August" + \
+		"&chxp=1,0,10,20,30,40,50,60,70,80,90,100,110" + \
+		"&chxr=0,5,21995|1,-5,120" + \
+		"&chxs=0,676767,11.5,0.5,_,676767|1,676767,10.5,0.5,lt,676767" + \
+		"&chxt=y,x" + \
+		"&chs=800x150" + \
+		"&cht=lc" + \
+		"&chco=FF9900,246C24" + \
+		"&chds=0,21000,0,20995" + \
+		"&chd=t:20000,20000,20000,20000,20000|0,1000,4000,9000,8000" + \
+		"&chdl=Available|Spent" + \
+		"&chg=14.3,-1,1,1" + \
+		"&chls=1|1" + \
+		"&chma=5" + \
+		"&chm=B,FFFF886C,0,0,0|B,82B92D9B,1,0,0,1"
+
+<!-- content start -->
+
+<h1>$club.name</h1>
+
+<img src="$chart_url" width="800" height="150" alt="">
+
+$for [type, expenses, title] in [["budget", budget_expenses, "Group Budget"], ["revenue", revenue_expenses, "Revenue Budget"]]:
+	<form action="?" method="post" id="$type-form">
+	<input type="hidden" name="budget" value="$type">
+	<table class="expenses">
+	$:expenses_cols()
+		
+	<caption>$title</caption>
+	<thead>
+	<tr>
+	<th>Date</th>
+	<th>Description</th>
+	<th>Type</th>
+	<th>Amount</th>
+	<th>Notes</th>
+	<th>Done</th>
+	</tr>
+	</thead>
+	
+	$for i, expense in enumerate(expenses):
+		$if expense.id != edit_id:
+			<tr>
+			<td class="date">$time.strftime("%Y/%m/%d", time.localtime(expense.date))</td>
+			<td>
+			$if is_admin():
+				<form style="display: inline" method="post" action="$club.id/$expense.id" >
+				<input type="image" src="$root/static/icons/delete.png" class="delete-button">
+				</form>
+				<a href="?edit=$expense.id"><img src="$root/static/icons/pencil.png"></a>
+			<strong>$expense.description</strong></td>
+			<td>$expense_types[expense.type]
+			$if expense.type == "reimbursement" and expense.student:
+				<br><span style="font-size: 0.8em; color: #777;">$db.select("student", {"id": expense.student}, where="id=$id")[0].name</span>
+			</td>
+			<td>$:currency_value(expense.amount)</td>
+			<td>$expense.notes</td>
+			<td>${"Yes" if expense.completed else "No"}</td>
+			</tr>
+		$elif is_admin():
+			$:input_row(**expense)
+			$:input_submit_row(text='Update Expense')
+    </table>
+	</form>
+	
+	$if is_admin():
+		<form method="post" id="$type-form">
+		<input type="hidden" name="budget" value="$type">
+		<table class="expenses">
+		$:expenses_cols()
+		$:input_row()
+		$:input_submit_row()
+		</table>
+		</form>
+		
+	<div class="budget-totals">
+	<strong>Allotted:</strong> $:currency_value(sum([x.amount for x in expenses if x.type == "allotment"]))<br>
+	<strong>Total:</strong> $:currency_value(sum([x.amount for x in expenses]))
+	</div>

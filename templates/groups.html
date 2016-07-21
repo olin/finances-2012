@@ -1,0 +1,64 @@
+$def with ()
+$var title: Groups
+$var type: groups
+
+$ organizations = list(db.select("club", where="type='organization'", order="name ASC"))
+$ classes = list(db.select("club", where="type='class'", order="name ASC"))
+$ clubs = list(db.select("club", where="type='club'", order="name ASC"))
+
+<h1>Clubs and Organizations</h1>
+
+$for [groups, names, title] in [[organizations, "organizations", "Organizations"], [classes, "classes", "Classes"], [clubs, "clubs", "Clubs"]]:
+	<h2>$title</h2>
+	$if not len(groups):
+		<p>There are no $names to display.</p>
+	<ul>
+	$for group in groups:
+		<li>
+		<h2 style="display: inline"><a href="$group.id">$group.name</a></h2>
+		<span style="color: #666">
+		Budget: $:currency_value(db.select('expense', {"budget": group.sao_budget}, what="sum(amount) as amount", where='budget=$budget')[0].amount)
+		Revenue: $:currency_value(db.select('expense', {"budget": group.revenue_budget}, what="sum(amount) as amount", where='budget=$budget')[0].amount)
+		</span>
+		</li>
+	</ul>
+
+<div class="budget-totals">
+<strong>Allotted:</strong> $:currency_value(db.select('expense', what="sum(amount) as amount", where="type='allotment'")[0].amount)
+<strong>Total:</strong> $:currency_value(db.select('expense', what="sum(amount) as amount")[0].amount)
+</div>
+
+$if is_admin():
+	<form method="post" id="clubs-form">
+	<table class="expenses">
+	<col>
+	<col style="width: 140px">
+	<col style="width: 140px">
+	<col style="width: 140px">
+
+	<caption>Add new clubs</caption>
+	<thead>
+	<tr>
+	<th>Name</th>
+	<th>Type</th>
+	<th>SAO Budget</th>
+	<th>Revenue Budget</th>
+	</tr>
+	</thead>
+
+	$for i in range(0, 5):
+		<tr class="input-row">
+		<td><input type="text" name="name"></td>
+		<td><select name="type">
+		<option value="club">Club</option>
+		<option value="organization">Organization</option>
+		<option value="class">Class</option>
+		</select></td>
+		<td>$$<input type="text" name="sao_budget" onclick="this.select()" value="0.00" style="width: 80%; display: inline"></td>
+		<td>$$<input type="text" name="revenue_budget" onclick="this.select()" value="0.00" style="width: 80%; display: inline"></td>
+		</tr>
+	</table>
+
+	<div class="table-form-submit">
+	<input type="submit" value="Submit Groups">
+	</div>

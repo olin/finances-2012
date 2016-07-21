@@ -1,0 +1,90 @@
+$def with (query, clubs)
+$var title: P-Card Transactions
+$var type: transactions
+
+<h1>Transactions</h1>
+
+$if query == "?marked":
+	<p class="notice">All outstanding transactions marked as sent.</p>
+
+$ expenses = list(db.select('expense', where='type="p-card" AND completed=0', order='date ASC'))
+$if len(expenses) > 0:
+	<table class="expenses">
+	<col style="width: 100px">
+	<col style="width: 200px">
+	<col style="width: 100px">
+	<col>
+	<col style="width: 90px">
+	
+	<caption>Outstanding P-Card Transactions</caption>
+
+	<thead>
+	<tr>
+	<th>Date</th>
+	<th>Club</th>
+	<th>Budget</th>
+	<th>Description</th>
+	<th>Amount</th>
+	</tr>
+	</thead>
+
+	$for expense in expenses:
+		$ club = get_club_by_expense(expense)
+		<tr>
+		<td>$time.strftime("%Y/%m/%d", time.localtime(expense.date))</td>
+		<td>$club.name</td>
+		<td>${"SAO" if len(list(db.select('club', {"budget": expense.budget}, where="sao_budget=$budget"))) > 0 else "Revenue"}</td>
+		<td>$expense.description</td>
+		<td>$:currency_value(expense.amount)</td>
+		</tr>
+	</table>
+	<div class="table-form-submit">
+	<form action="$root/transactions/mark" method="post" style="display: inline">
+	<input type="submit" value="Mark as Finished">
+	</form>
+	</div>
+
+$else:
+	<h2>Outstanding P-Card Transactions</h2>
+	<p>There are no outstanding transactions.</p>
+
+<form method="post" id="transactions-form">
+<table class="expenses">
+      <col style="width: 100px">
+      <col style="width: 200px">
+	  <col style="width: 100px">
+	  <col>
+	  <col style="width: 90px">
+
+  <caption>Enter Transactions</caption>
+  <thead>
+	<tr>
+      <th>Date</th>
+	  <th>Club</th>
+      <th>Budget</th>
+	  <th>Description</th>
+	  <th>Amount</th>
+	</tr>
+  </thead>
+
+  $for i in range(0, 5):
+	<tr class="input-row">
+	<td><input type="text" name="date" value="$datetime.date.today().strftime("%Y/%m/%d")"></td>
+	<td><select name="club">
+	<option value="-1">&mdash;</option>
+	$for club in clubs:
+		<option value="$club.id">$club.name</option>
+	</select></td>
+	<td><select name="budget">
+	<option value="sao">SAO</option>
+	<option value="revenue">Revenue</option>
+	</select></td>
+	<td><input type="text" name="description"></td>
+	<td>$$<input type="text" name="amount" onclick="this.select()" value="0.00" style="width: 80%; display: inline"></td>
+	</tr>
+</table>
+
+<div class="table-form-submit">
+  <input type="submit" value="Enter P-Card Transactions">
+</div>
+</form>

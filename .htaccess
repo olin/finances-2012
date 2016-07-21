@@ -1,0 +1,5 @@
+Options +ExecCGI
+        AddHandler cgi-script .py
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ sao.py/$1 [L]

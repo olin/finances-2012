@@ -1,0 +1,41 @@
+html, body, input, textarea, select, option, button { font-size: inherit; font-family: 'Lato', 'Helvetica', sans-serif; }
+html { background: #898; }
+body { font-size: 0.9em; width: 840px; margin: 20px auto; }
+form { margin: 1em 0; }
+
+#links, #links li { margin: 0; padding: 0; display: block; list-style: none }
+#links { height: 35px; background: #dfd; margin: 0; overflow: auto; }
+#links li { float: left; }
+#links li a { display: block; line-height: 35px; height: 35px; padding: 0 10px; }
+#links li.current a { font-weight: bold; background: #cec }
+#links li a:hover { background: #efe }
+
+#account { clear: left; font-size: 0.8em; float: right; margin: 0; padding: 5px 5px; }
+#account p { margin: 0;}
+
+#content { background: #fff; padding: 10px 20px 10px; }
+
+.expenses { width: 800px; }
+.expenses, .expenses td, .expenses th { border: 1px solid #ccc; border-collapse: collapse; padding: 0.25em 0.5em}
+.expenses caption { font-size: 1.5em; font-weight: bold; text-align: left; margin-bottom: 0.25em; }
+.expenses thead tr { background: #444; color: white; }
+.expenses td { vertical-align: top; }
+.expenses td.date { text-align: center; }
+.input-row select { width: 95%; }
+.input-row input, .input-row textarea { display: block; border: 2px solid #ddd; border-radius: 3px; width: 95%; }
+.input-row { background: #f3f3e3; }
+.input-submit-row { background: #f8f8e8; }
+.pos { color: green; }
+.neg { color: red; }
+.budget-totals { text-align: right; font-size: 1.3em; margin: 0.5em; }
+.table-form-submit { background: #f8f8e8; border: solid #ddd; border-width: 0 1px 1px; padding: 3px; }
+
+#students-list { overflow: auto; margin-left: 1em; }
+#students-list dt { float: left; width: 12em; clear: left; font-weight: bold; margin-bottom: 0.5em; }
+#students-list dd { float: left; }
+
+.notice { border: 1px dashed #cb3; background: #fe8; padding: 1em; }
+
+#footer { margin: 0; padding-top: 1em; text-align: center; }
+#footer { font-size: 0.8em; color: white; }
+#footer a { color: white; }

@@ -1,0 +1,17 @@
+$var title: Main Page
+$var type: main
+
+<h1>Student Finances</h1>
+
+<p>Welcome to the Student Finance App! </p>
+
+<ul>
+<li><a href="$root/groups/">Clubs and Organizations</a></li>
+<li><a href="$root/students/">Students</a></li>
+$if is_admin():
+	<li><a href="$root/reimbursements/">Reimbursements</a></li>
+	<li><a href="$root/transactions/">P-Card Transactions</a></li>
+</ul>
+
+<h2>Download Backup</h2>
+<p>You can <a href="$root/backup">download a snapshot (SQLite database)</a> of the current database at any time.</p>
